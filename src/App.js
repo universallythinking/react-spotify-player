@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+
 import * as $ from "jquery";
 import { authEndpoint, clientId, redirectUri, scopes } from "./config";
 import hash from "./hash";
@@ -23,6 +24,8 @@ class App extends Component {
       progress_ms: 0
     };
     this.getCurrentlyPlaying = this.getCurrentlyPlaying.bind(this);
+    this.playSong = this.playSong.bind(this);
+    this.pause = this.pause.bind(this);
   }
   componentDidMount() {
     // Set token
@@ -47,6 +50,27 @@ class App extends Component {
       },
       success: (data) => {
         console.log("data", data);
+          if(data != undefined) {
+          this.setState({
+            item: data.item,
+            is_playing: data.is_playing,
+            progress_ms: data.progress_ms,
+          });
+        }
+      }
+    });
+  }
+
+  getPlaylist(token) {
+    // Make a call using the token
+    $.ajax({
+      url: "https://api.spotify.com/v1/me/player",
+      type: "GET",
+      beforeSend: (xhr) => {
+        xhr.setRequestHeader("Authorization", "Bearer " + token);
+      },
+      success: (data) => {
+        console.log("data", data);
         this.setState({
           item: data.item,
           is_playing: data.is_playing,
@@ -55,6 +79,36 @@ class App extends Component {
       }
     });
   }
+
+  playSong() {
+    // Make a call using the token
+    const { token } = this.state.token;
+    let data = '{"uris": ["spotify:track:1uOLXjOFHCkkTZKlPFClsz"]}';
+    $.ajax({
+      url: "https://api.spotify.com/v1/me/player/play",
+      type: "PUT",
+      data: data,
+      beforeSend: (xhr) => {
+        xhr.setRequestHeader("Authorization", "Bearer " + this.state.token);
+      },
+      success: (data) => {
+        console.log("data", data);
+      }
+    });
+  } 
+  
+  pause() {
+    // Make a call using the token
+    $.ajax({
+      url: "https://api.spotify.com/v1/me/player/pause",
+      type: "PUT",
+      beforeSend: (xhr) => {
+        xhr.setRequestHeader("Authorization", "Bearer " + this.state.token);
+      },
+      success: (data) => {
+      }
+    });
+  }  
 
   render() {
 
@@ -73,11 +127,19 @@ class App extends Component {
             </a>
           )}
           {this.state.token && (
-            <Player
-              item={this.state.item}
-              is_playing={this.state.is_playing}
-              progress_ms={this.progress_ms}
-            />
+            <div>
+              <Player
+                item={this.state.item}
+                is_playing={this.state.is_playing}
+                progress_ms={this.progress_ms}
+              />
+              <p onClick={this.playSong}>
+                Play
+              </p>
+              <p onClick={this.pause}>
+                Pause
+              </p>
+            </div>
           )}
         </header>
       </div>
