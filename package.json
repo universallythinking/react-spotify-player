@@ -2,6 +2,9 @@
   "name": "react-instafeed",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "10.16.3"
+  },
   "dependencies": {
     "jquery": "^3.4.1",
     "react": "^16.8.4",
